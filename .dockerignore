@@ -1,0 +1,8 @@
+target/
+logs/
+*.iml
+.idea/
+.git/
+.gitignore
+*.log
+dependency-reduced-pom.xml
