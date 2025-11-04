@@ -55,7 +55,7 @@ The application has three main parts:
 - Orchestrates the business logic
 - Coordinates between input, domain, and output
 - Adds application-level concerns (logging, error handling)
-- Contains `TaxCalculationService` and `StockTaxCalculatorApplication`
+- Contains `TaxCalculationService` and `Application`
 
 #### 3. Infrastructure Layer (The Adapters)
 
@@ -117,7 +117,7 @@ mvn clean package
 ### Run Application
 ```bash
 # Using Maven
-mvn exec:java -Dexec.mainClass="com.stocktax.application.StockTaxCalculatorApplication"
+mvn exec:java -Dexec.mainClass="com.stocktax.application.Application"
 
 # Using JAR
 java -jar target/stock-tax-calculator-1.0.0.jar
