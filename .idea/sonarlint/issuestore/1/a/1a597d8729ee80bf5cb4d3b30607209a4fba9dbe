@@ -1,12 +1,0 @@
-
-”
-java:S1130	"wRemove the declaration of thrown exception 'java.lang.InterruptedException', as it cannot be thrown from method's body.(‘–µ¥8ßˆ¿˜3
-G
-java:S1197	"*Move the array designators [] to the type.(‘–µ¥8šœ¾˜3
-G	java:S106
-"+Replace this use of System.out by a logger.(üé²ñ8›œ¾˜3
-x
-java:S4276"[Refactor this code to use the more specialised Functional Interface 'ToIntFunction<String>'(‹¦Óë8œœ¾˜3
-L	java:S106"+Replace this use of System.out by a logger.(¾ÂàÒùÿÿÿÿ8Ÿœ¾˜3
-L	java:S106"+Replace this use of System.out by a logger.(œ·„”ûÿÿÿÿ8Ÿœ¾˜3
-L	java:S106"+Replace this use of System.out by a logger.(°è­‡üÿÿÿÿ8¤è¿˜3
