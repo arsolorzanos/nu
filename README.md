@@ -197,8 +197,7 @@ The application uses SLF4J with Logback for logging:
 
 Input:
 ```json
-[{"operation":"buy", "unit-cost":10.00, "quantity": 10000},
-{"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
+[{"operation":"buy", "unit-cost":10.00, "quantity": 10000},{"operation":"sell", "unit-cost":20.00, "quantity": 5000}]
 ```
 
 Output:
