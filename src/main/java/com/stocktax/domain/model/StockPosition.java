@@ -65,18 +65,31 @@ public class StockPosition {
         return profitOrLoss;
     }
     
-    /**
-     * Adds to accumulated losses
-     */
-    public void addLoss(BigDecimal loss) {
-        this.accumulatedLosses = this.accumulatedLosses.add(loss);
+    public void processLoss(BigDecimal profitOrLoss) {
+        if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
+            this.accumulatedLosses = this.accumulatedLosses.add(profitOrLoss.abs());
+        }
     }
     
-    /**
-     * Reduces accumulated losses by the given amount
-     */
-    public void reduceLosses(BigDecimal amount) {
-        this.accumulatedLosses = this.accumulatedLosses.subtract(amount).max(BigDecimal.ZERO);
+    public BigDecimal calculateTaxableProfit(BigDecimal profit) {
+        if (profit.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Profit must be positive");
+        }
+        
+        if (accumulatedLosses.compareTo(BigDecimal.ZERO) == 0) {
+            return profit;
+        }
+        
+        if (profit.compareTo(accumulatedLosses) >= 0) {
+            // Current profit covers all accumulated losses
+            BigDecimal taxableProfit = profit.subtract(accumulatedLosses);
+            this.accumulatedLosses = BigDecimal.ZERO;
+            return taxableProfit;
+        } else {
+            // Current profit doesn't cover all losses
+            this.accumulatedLosses = this.accumulatedLosses.subtract(profit);
+            return BigDecimal.ZERO;
+        }
     }
     
     public boolean hasStocks() {

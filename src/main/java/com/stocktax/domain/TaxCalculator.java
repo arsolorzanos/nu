@@ -44,46 +44,19 @@ public class TaxCalculator {
 
         BigDecimal operationAmount = operation.getTotalAmount();
         if (operationAmount.compareTo(TAX_THRESHOLD) <= 0) {
-            // We still need to handle losses even if no tax
-            if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-                position.addLoss(profitOrLoss.abs());
-            }
+            position.processLoss(profitOrLoss);
             return new TaxCalculation(BigDecimal.ZERO);
         }
 
         if (profitOrLoss.compareTo(BigDecimal.ZERO) <= 0) {
-            if (profitOrLoss.compareTo(BigDecimal.ZERO) < 0) {
-                position.addLoss(profitOrLoss.abs());
-            }
+            position.processLoss(profitOrLoss);
             return new TaxCalculation(BigDecimal.ZERO);
         }
 
         // we do have a profit -> calculate tax
-        BigDecimal taxableProfit = calculateTaxableProfit(profitOrLoss, position);
+        BigDecimal taxableProfit = position.calculateTaxableProfit(profitOrLoss);
         BigDecimal tax = taxableProfit.multiply(TAX_RATE);
 
         return new TaxCalculation(tax);
-    }
-
-    /**
-     * Calculates taxable profit considering accumulated losses
-     */
-    private BigDecimal calculateTaxableProfit(BigDecimal currentProfit, StockPosition position) {
-        BigDecimal accumulatedLosses = position.getAccumulatedLosses();
-
-        if (accumulatedLosses.compareTo(BigDecimal.ZERO) == 0) {
-            return currentProfit;
-        }
-
-        if (currentProfit.compareTo(accumulatedLosses) >= 0) {
-            // current profit covers all accumulated losses
-            BigDecimal taxableProfit = currentProfit.subtract(accumulatedLosses);
-            position.reduceLosses(accumulatedLosses);
-            return taxableProfit;
-        } else {
-            // Current profit doesn't cover all losses
-            position.reduceLosses(currentProfit);
-            return BigDecimal.ZERO;
-        }
     }
 }

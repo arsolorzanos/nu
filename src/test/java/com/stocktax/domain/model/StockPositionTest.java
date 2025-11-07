@@ -144,14 +144,21 @@ class StockPositionTest {
   }
 
   @Test
-  void testAddLoss() {
-    stockPosition.addLoss(new BigDecimal("1000.00"));
+  void testProcessLoss() {
+    stockPosition.processLoss(new BigDecimal("-1000.00"));
     assertEquals(
       new BigDecimal("1000.00"),
       stockPosition.getAccumulatedLosses()
     );
 
-    stockPosition.addLoss(new BigDecimal("500.00"));
+    stockPosition.processLoss(new BigDecimal("-500.00"));
+    assertEquals(
+      new BigDecimal("1500.00"),
+      stockPosition.getAccumulatedLosses()
+    );
+
+
+    stockPosition.processLoss(new BigDecimal("2000.00"));
     assertEquals(
       new BigDecimal("1500.00"),
       stockPosition.getAccumulatedLosses()
@@ -159,10 +166,16 @@ class StockPositionTest {
   }
 
   @Test
-  void testReduceLosses() {
-    stockPosition.addLoss(new BigDecimal("1000.00"));
+  void testCalculateTaxableProfitReducesLosses() {
+    stockPosition.processLoss(new BigDecimal("-1000.00"));
+    assertEquals(
+      new BigDecimal("1000.00"),
+      stockPosition.getAccumulatedLosses()
+    );
 
-    stockPosition.reduceLosses(new BigDecimal("300.00"));
+    // Calculate taxable profit with a profit that partially covers losses
+    BigDecimal taxableProfit = stockPosition.calculateTaxableProfit(new BigDecimal("300.00"));
+    assertEquals(BigDecimal.ZERO, taxableProfit);
     assertEquals(
       new BigDecimal("700.00"),
       stockPosition.getAccumulatedLosses()
@@ -170,16 +183,27 @@ class StockPositionTest {
   }
 
   @Test
-  void testReduceLossesBelowZeroBecomesZero() {
-    stockPosition.addLoss(new BigDecimal("1000.00"));
+  void testCalculateTaxableProfitCoversAllLosses() {
+    stockPosition.processLoss(new BigDecimal("-1000.00"));
+    assertEquals(
+      new BigDecimal("1000.00"),
+      stockPosition.getAccumulatedLosses()
+    );
 
-    stockPosition.reduceLosses(new BigDecimal("1500.00"));
+    // Calculate taxable profit with a profit that covers all losses
+    BigDecimal taxableProfit = stockPosition.calculateTaxableProfit(new BigDecimal("1500.00"));
+    assertEquals(new BigDecimal("500.00"), taxableProfit);
     assertEquals(0, stockPosition.getAccumulatedLosses().compareTo(BigDecimal.ZERO));
   }
 
   @Test
-  void testReduceLossesFromZeroRemainsZero() {
-    stockPosition.reduceLosses(new BigDecimal("500.00"));
+  void testCalculateTaxableProfitWithNoLosses() {
+    // No accumulated losses
+    assertEquals(0, stockPosition.getAccumulatedLosses().compareTo(BigDecimal.ZERO));
+
+    // Full profit
+    BigDecimal taxableProfit = stockPosition.calculateTaxableProfit(new BigDecimal("500.00"));
+    assertEquals(new BigDecimal("500.00"), taxableProfit);
     assertEquals(0, stockPosition.getAccumulatedLosses().compareTo(BigDecimal.ZERO));
   }
 
@@ -212,7 +236,7 @@ class StockPositionTest {
       stockPosition.getWeightedAveragePrice()
     );
 
-    // Sell 1500, $15 -> loss of 2500 (1500 * (15 - 16.67))
+    // Sell 1500, $15 -> loss of 2505 (1500 * (15 - 16.67))
     BigDecimal profitOrLoss = stockPosition.sellStocks(
       1500,
       new BigDecimal("15.00")
@@ -220,8 +244,8 @@ class StockPositionTest {
     assertEquals(new BigDecimal("-2505.00"), profitOrLoss);
     assertEquals(1500, stockPosition.getTotalQuantity());
 
-    // Add loss
-    stockPosition.addLoss(new BigDecimal("2505.00"));
+    // Process loss
+    stockPosition.processLoss(profitOrLoss);
     assertEquals(
       new BigDecimal("2505.00"),
       stockPosition.getAccumulatedLosses()
